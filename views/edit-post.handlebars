@@ -1,22 +1,26 @@
-<div class="card">
-    <h2 class="card-header">Edit Your Post</h2>
-    <form class="card-body edit-form">
-
-      <div class="form-group">
-        <label class="form-label">Title:</label>
-        <input type="text" class="form-input" name="post-title" value="{{post.title}}"/>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Content:</label>
-        <textarea class="form-textarea form-input" name="post-content">{{post.content}}</textarea>
-      </div>
-
-      <div class="form-group">
-        <button type="submit" class="btn btn-primary"><i class="bi bi-pencil"></i>Edit Post</button>
-      </div>
-
-    </form>
-   
-</div>
-<script src="/js/edit.js"></script>
+<main class="container mt-5">
+  <h1 class="mb-4">Edit Post</h1>
+  <form class="update-post-form" class="mb-3">
+    <div class="mb-3">
+      <label for="title-update-post" class="form-label">Title</label>
+      <input
+        type="text"
+        class="form-control"
+        id="title-update-post"
+        placeholder="Enter post title"
+        value="{{title}}"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="content-update-post" class="form-label">Content</label>
+      <textarea
+        class="form-control"
+        id="content-update-post"
+        rows="3"
+        placeholder="Enter post content"
+      >{{content}}</textarea>
+    </div>
+    <button type="submit" id="update-post" class="btn btn-primary">Update Post</button>
+    <button type="button" id="delete-post" class="btn btn-danger">Delete Post</button>
+  </form>
+</main>
