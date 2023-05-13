@@ -1,28 +1,28 @@
 const router = require('express').Router();
 const { Post, User, Comment } = require('../models');
-const sequelize = require('../config/config');
+const sequelize = require('../config/connection');
 
 // Get all posts ('/')
 router.get('/', async (req, res) => {
     try {
           // Retrieve all posts from db
         const dbPostData = await Post.findAll({ 
-            attributes: ['id', 'title', 'content', 'created_at'],           
+            attributes: ['id', 'posttitle', 'description', 'date_created'],           
             include: [
                 {
                     model: Comment,
-                    attributes: ['id', 'comment', 'postId', 'userId', 'created_at'],
-                    include: {
-                        model: User,
-                        attributes: ['username'],
-                    },
+                    attributes: ['id', 'commenttext', 'date_created'],
+                    // include: {
+                    //     model: User,
+                    //     attributes: ['username'],
+                    // },
                 },
                 {
                     model: User,
-                    attributes: ['username'],
+                    attributes: ['name'],
                 },
             ],
-            order: [['created_at', 'DESC']],
+            order: [['date_created', 'DESC']],
         })
         // Serialize data retrieved
         const posts = dbPostData.map((post) => post.get({ plain: true }));
@@ -30,11 +30,10 @@ router.get('/', async (req, res) => {
         // Respond with template to render along with date retrieved
         res.render('homepage', 
             { posts, 
-            loggedIn: req.session.loggedIn, 
-            username: req.session.username,
-            userId: req.session.userId });
+             });
     } catch (err) {
         res.status(500).json(err);
+        console.log(err)
     }
 });
 
@@ -43,11 +42,11 @@ router.get('/post/:id', async (req, res) => {
     try{
         const dbPostData = await Post.findOne({
             where: {id: req.params.id},
-            attributes: ['id', 'content', 'title', 'created_at'],
+            attributes: ['id', 'description', 'posttitle', 'date_created'],
             include: [
                 {
                     model: Comment,
-                    attributes: ['id', 'comment', 'postId', 'userId', 'created_at'],
+                    attributes: ['id', 'commenttext',  'date_created'],
                     include: {
                       model: User,
                       attributes: ['username'],
