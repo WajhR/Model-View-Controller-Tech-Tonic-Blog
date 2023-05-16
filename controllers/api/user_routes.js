@@ -2,20 +2,44 @@ const router = require('express').Router();
 const { User } = require('../../models');
 const withAuth = require('../../utils/auth');
 
+
+// Route to get all users
+router.get("/", (req, res) => {
+    User.findAll({
+      attributes: { exclude: ["password"] },
+    })
+      .then((dbUserData) => res.json(dbUserData))
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  });
+  
 // singup user ('/api/user)
-router.post('/', async (req, res) => {
+router.post("/signup", async (req, res) => {
     try {
-        const dbUserData = await User.create(req.body);
-        req.session.save(() => {
-            req.session.userId = dbUserData.id;
-            req.session.username = dbUserData.username;
-            req.session.loggedIn = true;
-            res.status(201).json({ message: `Account created for ${dbUserData.username}`});
-        });
+      const newUser = await User.create({
+        name: req.body.name,
+        password: req.body.password,
+        email: req.body.email
+        })
+    //   newUser.username = req.body.username;
+    //   newUser.email = req.body.email;
+    //   newUser.password = req.body.password;
+  
+       const userData = await newUser.save();
+  
+      req.session.save(() => {
+        req.session.user_id = userData.id;
+        req.session.logged_in = true;
+  
+        res.status(200).json(userData);
+      });
     } catch (err) {
-        res.status(400).json(err);
+      res.status(400).json(err);
+      console.log(err);
     }
-});
+  });
 
 // login user ('/api/user/login')
 router.post('/login', async (req, res) => {
@@ -24,7 +48,8 @@ router.post('/login', async (req, res) => {
             where: {username: req.body.username}
         });
         if (!dbUserData) {
-            res.status(400).json({ message: `User id ${req.params.id} is not valid.` });
+            res.status(400)
+            .json({ message: `User id ${req.params.id} is not valid.` });
             return;
         }
         // check pw
@@ -39,7 +64,8 @@ router.post('/login', async (req, res) => {
             req.session.username = dbUserData.username;
             req.session.loggedIn = true;        
         //send response to client
-        res.status(200).json({ message: "You are logged in!" });
+        res.status(200).
+        json({ user:userData, message: "You are logged in!" });
         });
     } catch (err) {
         res.status(400).json(err);

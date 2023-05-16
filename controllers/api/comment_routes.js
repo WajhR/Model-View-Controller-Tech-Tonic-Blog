@@ -1,20 +1,24 @@
-const router = require('express').Router();
-const { Comment } = require('../../models');
-const withAuth = require('../../utils/auth');
-
-// get comments ('api/comment')
-router.get('/', async (req, res) => {
-  try{ 
-    const dbCommentData = await Comment.findAll({});
-    if (dbCommentData.length === 0) {
-      res.status(404).json({ message: "You have no comment."});
-      return;
-    };
-    res.status(200).json(dbCommentData);
+// Import the required modules
+const router = require("express").Router();
+const { Comment } = require("../../models");
+const withAuth = require("../../utils/auth");
+// Create a new comment
+router.post("/", withAuth, async (req, res) => {
+  try {    
+    // Create a new comment with the provided data
+    const newComment = await Comment.create({
+      ...req.body,
+      user_id: req.session.user_id,
+    });
+    // Send a response with the new comment data
+    res.status(200).json(newComment);
   } catch (err) {
-    res.status(500).json(err);
+    // Send an error response if something went wrong
+    res.status(400).json(err);
   }
 });
+
+
 
 // Get all the comments from 1 post
 router.get('/:id', async (req, res) => {
@@ -32,19 +36,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// create comment ('/api/comment')
-router.post('/', withAuth, async (req, res) => {
-    const body = req.body;
-    try {
-        const newComment = await Comment.create({
-            ...body,
-            userId: req.session.userId,
-        });
-        res.status(200).json({ newComment, success: true });
-    } catch (err) {
-        res.status(500).json(err);
-    }
-});
 
 // delete comment ('api/comment/:id')
 router.delete('/:id', withAuth, async (req, res) => {

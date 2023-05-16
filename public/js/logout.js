@@ -1,4 +1,4 @@
-const logoutHandler = async () => {
+async function logoutHandler(){
   const response = await fetch ('/api/user/logout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -10,5 +10,8 @@ const logoutHandler = async () => {
       alert ('Failed to log out!') //when unsuccessfule, load the homepage 
   }
 };
-document.querySelector('#logout').addEventListener('click', logoutHandler);
-
+// Add an event listener to the logout button
+const logoutButton = document.querySelector('#logout');
+if (logoutButton) {
+  logoutButton.addEventListener('click', logoutHandler);
+}

@@ -2,7 +2,7 @@
 const loginFormHandler = async (event) => {
   event.preventDefault();
 // Get the values of hte username and password for input field
-  const usernameEl = document.querySelector("#username-login");
+  const usernameEl = document.querySelector("#name-login");
   const passwordEl = document.querySelector("#password-login");
 
   // If input has values. Send post request to login endpoint with input values as JSON data
@@ -22,29 +22,8 @@ const loginFormHandler = async (event) => {
       alert('Failed to log in!')
   }
 };
-
-document.querySelector('#login-form').addEventListener('submit', loginFormHandler);
-  
-// Signup request
-  const signupFormHandler = async (event) => {
-    event.preventDefault();
-
-    const username = document.querySelector('#username-signup').value.trim();
-    const password = document.querySelector('#password-signup').value.trim();
-
-    const response = await fetch('/api/user', {
-        method: 'POST',
-        body: JSON.stringify({
-            username, 
-            password,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-    });
-    if (response.ok) {
-        document.location.replace('/');
-    } else {
-        alert('Failed to log in!');
-    }
-};
-
-document.querySelector('#signup-form').addEventListener('submit', signupFormHandler);
+}
+const loginForm = document.querySelector('.login-form');
+if (loginForm) {
+  loginForm.addEventListener('submit', loginFormHandler);
+}

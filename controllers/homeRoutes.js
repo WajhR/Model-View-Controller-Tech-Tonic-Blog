@@ -1,88 +1,124 @@
-const router = require('express').Router();
-const { Post, User, Comment } = require('../models');
-const sequelize = require('../config/connection');
+// Import necessary packages and models
+const router = require("express").Router();
+const { Post, User, Comment } = require("../models");
+const withAuth = require("../utils/auth");
 
-// Get all posts ('/')
-router.get('/', async (req, res) => {
-    try {
-          // Retrieve all posts from db
-        const dbPostData = await Post.findAll({ 
-            attributes: ['id', 'posttitle', 'description', 'date_created'],           
-            include: [
-                {
-                    model: Comment,
-                    attributes: ['id', 'commenttext', 'date_created'],
-                    // include: {
-                    //     model: User,
-                    //     attributes: ['username'],
-                    // },
-                },
-                {
-                    model: User,
-                    attributes: ['name'],
-                },
-            ],
-            order: [['date_created', 'DESC']],
-        })
-        // Serialize data retrieved
-        const posts = dbPostData.map((post) => post.get({ plain: true }));
-        console.log(posts)
-        // Respond with template to render along with date retrieved
-        res.render('homepage', 
-            { posts, 
-             });
-    } catch (err) {
-        res.status(500).json(err);
-        console.log(err)
-    }
+// Route to render homepage
+router.get("/", async (req, res) => {
+  try {
+        // Find all posts with associated usernames
+    const postData = await Post.findAll({
+      include: [{ model: User, attributes: ["name"] }],
+    });
+    // Convert post data to plain JavaScript object
+    const posts = postData.map((post) => post.get({ plain: true }));
+    // Render homepage template with posts and login status
+    res.render("homepage", {
+      posts,
+      // logged_in: req.session.logged_in,
+    });
+  } catch (err) {
+        // If there is an error, return 500 status code and error message
+    res.status(500).json(err);
+  }
+});
+// Route to render individual post page
+router.get("/post/:id", withAuth, async (req, res) => {
+  try {
+        // Find post by ID with associated username and comments with associated usernames
+    const postData = await Post.findByPk(req.params.id, {
+      include: [
+        { model: User, attributes: ["name"] },
+        {
+          model: Comment,
+          include: [{ model: User, attributes: ["name"] }],
+        },
+      ],
+    });
+    // Convert post data to plain JavaScript object
+    const post = postData.get({ plain: true });
+    // Render post template with post data and login status
+    res.render("post", {
+      ...post,
+      logged_in: req.session.logged_in,
+    });
+  } catch (err) {
+        // If there is an error, return 500 status code and error message
+    res.status(500).json(err);
+  }
+});
+// Route to render dashboard page with all posts by current user
+// Find all posts by current user with associated usernames
+router.get("/dashboard", withAuth, async (req, res) => {
+  try {
+    const postData = await Post.findAll({
+      where: { user_id: req.session.user_id },
+      include: [{ model: User, attributes: ["name"] }],
+    });
+    // Convert post data to plain JavaScript object
+    const posts = postData.map((post) => post.get({ plain: true }));
+
+    res.render("dashboard", {
+      posts,
+      logged_in: req.session.logged_in,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
-// Get single post ('/post/:id')
-router.get('/post/:id', async (req, res) => {
-    try{
-        const dbPostData = await Post.findOne({
-            where: {id: req.params.id},
-            attributes: ['id', 'description', 'posttitle', 'date_created'],
-            include: [
-                {
-                    model: Comment,
-                    attributes: ['id', 'commenttext',  'date_created'],
-                    include: {
-                      model: User,
-                      attributes: ['username'],
-                    },
-                  },
-                  {
-                    model: User,
-                    attributes: ['username'],
-                  },
-            ],
-        });
-        if (dbPostData) {
-            const post = dbPostData.get({ plain: true });
-            console.log(post);
-            res.render('single-post', { post, loggedIn: req.session.loggedIn, username: req.session.username, })  
-        } else {
-            res.status(404).json({ message: "This id has no post."});
-            return;
-        }
-    } catch (err) {
-        res.status(500).json(err);
-    }   
+router.get("/login", (req, res) => {
+  if (req.session.logged_in) {
+    res.redirect("/dashboard");
+    return;
+  }
+  res.render("login");
 });
 
-// Login
-router.get('/login', (req, res) => {
-    if (req.session.loggedIn) {
-        res.redirect('/');
-        return;
-    }
-    res.render('login');
+router.get("/signup", (req, res) => {
+  if (req.session.logged_in) {
+    res.redirect("/dashboard");
+    return;
+  }
+  res.render("signup");
 });
 
-// Signup
-router.get('/signup', async (req, res) => {
-    res.render('signup');
-})
+//render the new post page
+router.get("/newpost", (req, res) => {
+  if (req.session.logged_in) {
+    res.render("newpost");
+    return;
+  }
+  res.redirect("/login");
+});
 
-module.exports = router; 
+//render the edit post page
+router.get("/editpost/:id", async (req, res) => {
+  try {
+    const postData = await Post.findByPk(req.params.id, {
+      include: [
+        { model: User, attributes: ["name"] },
+        {
+          model: Comment,
+          include: [{ model: User, attributes: ["name"] }],
+        },
+      ],
+    });
+
+    const post = postData.get({ plain: true });
+
+    res.render("editpost", {
+      ...post,
+      logged_in: req.session.logged_in,
+    });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+// module exports router
+module.exports = router;
+
+
+
+
+

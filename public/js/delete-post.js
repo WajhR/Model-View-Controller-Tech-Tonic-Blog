@@ -1,17 +1,21 @@
-cconst delButton = document.querySelector('#del-post-btn');
-const postId = document.querySelector('input[name="post-id"]').value;
-
-const deleteHandler = async () => {
-    const response = await fetch(`/api/post/${postId}`, {
-        method: 'DELETE'
+const deletePost = async (post_id) => {
+    const response = await fetch(`/api/posts/${post_id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
     });
+  
     if (response.ok) {
-    document.location.replace('/dashboard');
+      document.location.reload(); // When successful, reload the page
     } else {
-        alert(response.statusText);
+      alert("Failed to delete the post."); // When unsuccessful, show alert
     }
-};
-
-if(delButton!=null){
-    delButton.addEventListener('click', deleteHandler);
-}
+  };
+  
+  const deletePostHandler = (event) => {
+    if (event.target.matches(".delete-post")) {
+      const post_id = event.target.getAttribute("data-post-id");
+      deletePost(post_id);
+    }
+  };
+  
+  document.addEventListener("click", deletePostHandler);
