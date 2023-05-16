@@ -16,7 +16,8 @@ router.get("/", (req, res) => {
   });
   
 // singup user ('/api/user)
-router.post("/signup", async (req, res) => {
+router.post("/", async (req, res) => {
+    console.log("Signup",req.body)
     try {
       const newUser = await User.create({
         name: req.body.name,
@@ -32,12 +33,12 @@ router.post("/signup", async (req, res) => {
       req.session.save(() => {
         req.session.user_id = userData.id;
         req.session.logged_in = true;
-  
+        console.log(req.session)
         res.status(200).json(userData);
       });
     } catch (err) {
-      res.status(400).json(err);
       console.log(err);
+      res.status(400).json(err);
     }
   });
 
