@@ -28,7 +28,18 @@ The challenge of building this application involved creating a scalable and robu
 4. In order to create posts, the user must login on the Login page or create an account on the Sign Up page
 
 ## Deployed Application Link:
-[Deployed Application Link:](https://git.heroku.com/wajhtechblog.git)
+[Deployed Application Link:](https://git.heroku.com/wajhtechblog.git)h
+
+
+## Screenshots:
+### Figure 1. Screenshot
+![](/public/images/tech_blog1.png) 
+## Screenshots:
+### Figure 2. Screenshot
+![](/public/images/tech_blog2.png) 
+
+## GIF:
+![](/public/images/Wajh%20Tech%20Blogs.gif)
 
 ## Resources
 ---

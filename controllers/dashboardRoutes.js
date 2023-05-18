@@ -7,28 +7,27 @@ const sequelize = require('../config/connection');
 router.get('/', withAuth, (req, res) => {
     Post.findAll({
       where: {
-        userId: req.session.userId,
+        user_id: req.session.user_id,
       },
-      attributes: ['id', 'title', 'content', 'created_at'],
-      order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: Comment,
-          attributes: ['id', 'comment', 'postId', 'userId', 'created_at'],
-          include: {
-            model: User,
-            attributes: ['username'],
-          },
-        },
-        {
-          model: User,
-          attributes: ['username'],
-        },
-      ],
+      // order: [['created_at', 'DESC']],
+      // include: [
+      //   {
+      //     model: Comment,
+      //     include: {
+      //       model: User,
+      //       attributes: ['name'],
+      //     },
+      //   },
+      //   {
+      //     model: User,
+      //     attributes: ['name'],
+      //   },
+      // ],
     })
       .then((dbPostData) => {
         const posts = dbPostData.map((post) => post.get({ plain: true }));
-        res.render('dashboard', { posts, loggedIn: true, username: req.session.username,});       
+        console.log(posts);
+        res.render('dashboard', { posts, logged_in: req.session.logged_in, username: req.session.username,});       
       })
       .catch((err) => {
         console.log(err);
@@ -42,18 +41,18 @@ router.get('/edit/:id', withAuth, (req, res) => {
     where: {
       id: req.params.id,
     },
-    attributes: ['id', 'title', 'content', 'created_at'],
+    
     include: [
       {
         model: User,
-        attributes: ['username'],
+        attributes: ['name'],
       },
       {
         model: Comment,
-        attributes: ['id', 'comment', 'postId', 'userId', 'created_at'],
+        
         include: {
           model: User,
-          attributes: ['username'],
+          attributes: ['name'],
         },
       },
     ],
@@ -64,7 +63,7 @@ router.get('/edit/:id', withAuth, (req, res) => {
         return;
       }
       const post = dbPostData.get({ plain: true });
-      res.render('edit-post', { post, loggedIn: true, username: req.session.username });         
+      res.render('edit-post', { post, logged_in: true, username: req.session.username });         
     })
     .catch((err) => {
       console.log(err);

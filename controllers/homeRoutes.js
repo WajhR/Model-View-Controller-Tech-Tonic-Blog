@@ -49,23 +49,24 @@ router.get("/post/:id", withAuth, async (req, res) => {
 });
 // Route to render dashboard page with all posts by current user
 // Find all posts by current user with associated usernames
-router.get("/dashboard", withAuth, async (req, res) => {
-  try {
-    const postData = await Post.findAll({
-      where: { user_id: req.session.user_id },
-      include: [{ model: User, attributes: ["name"] }],
-    });
-    // Convert post data to plain JavaScript object
-    const posts = postData.map((post) => post.get({ plain: true }));
+// router.get("/", withAuth, async (req, res) => {
+//   try {
+//     const postData = await Post.findAll({
+//       where: {id: req.session.id },
+//       include: [{ model: User, attributes: ["name"] }],
+//     });
+//     // Convert post data to plain JavaScript object
+//     const posts = postData.map((post) => post.get({ plain: true }));
 
-    res.render("dashboard", {
-      posts,
-      logged_in: req.session.logged_in,
-    });
-  } catch (err) {
-    res.status(500).json(err);
-  }
-});
+//     res.render("dashboard", {
+//       posts,
+//       logged_in: req.session.logged_in,
+//     });
+//   } catch (err) {
+//     console.log(err,"/dashboard")
+//     res.status(500).json(err);
+//   }
+// });
 
 router.get("/login", (req, res) => {
   if (req.session.logged_in) {
@@ -86,7 +87,7 @@ router.get("/signup", (req, res) => {
 //render the new post page
 router.get("/newpost", (req, res) => {
   if (req.session.logged_in) {
-    res.render("newpost");
+    res.render("new-post");
     return;
   }
   res.redirect("/login");

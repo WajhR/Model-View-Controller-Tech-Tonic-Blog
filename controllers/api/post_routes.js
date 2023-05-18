@@ -36,6 +36,8 @@ router.get("/:id", async (req, res) => {
 // Create a new post with authenticated user
 router.post("/", withAuth, async (req, res) => {
   try {
+    console.log(req.body)
+    console.log(req.session)
     const newPost = await Post.create({
       ...req.body,
       user_id: req.session.user_id,

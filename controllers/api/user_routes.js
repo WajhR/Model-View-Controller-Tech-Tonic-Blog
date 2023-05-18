@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 router.post("/", async (req, res) => {
     console.log("Signup",req.body)
     try {
-      const newUser = await User.create({
+      const userData = await User.create({
         name: req.body.name,
         password: req.body.password,
         email: req.body.email
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
     //   newUser.email = req.body.email;
     //   newUser.password = req.body.password;
   
-       const userData = await newUser.save();
+      //  const userData = await newUser.save();
   
       req.session.save(() => {
         req.session.user_id = userData.id;
@@ -44,46 +44,55 @@ router.post("/", async (req, res) => {
 
 // login user ('/api/user/login')
 router.post('/login', async (req, res) => {
+    console.log("Login",req.body)
     try {
         const dbUserData = await User.findOne({
-            where: {username: req.body.username}
+            where: {name: req.body.name}
         });
         if (!dbUserData) {
             res.status(400)
             .json({ message: `User id ${req.params.id} is not valid.` });
             return;
         }
+        console.log(dbUserData,"+++++++++++++++++++++++++")
         // check pw
-        const pwValidated = await dbUserData.checkPassword(req.body.password)
-        if (!pwValidated) {
+        const userData = await dbUserData.checkPassword(req.body.password)
+        if (!userData) {
             res.status(400).json({ message: "Incorrect password!" });
             return;
         }
+     
+        console.log(userData,"Login Password __________")
         // create session and send response back
         req.session.save(() => {
-            req.session.userId = dbUserData.id;
-            req.session.username = dbUserData.username;
-            req.session.loggedIn = true;        
+          req.session.user_id = dbUserData.id;
+          req.session.logged_in = true;
+          console.log(req.session)
+           
         //send response to client
         res.status(200).
         json({ user:userData, message: "You are logged in!" });
         });
     } catch (err) {
+        console.error("Login err",err)
         res.status(400).json(err);
     }
 });
 
 // logout user ('/api/user/logout')
 router.post('/logout', withAuth, async (req, res) => {
+   console.log("Logout")
     try {
-        if (req.session.loggedIn) {
+       if (req.session.logged_in) {
             const dbUserData = await req.session.destroy(() => {
                 res.status(204).end();
             });
-        } else {
-            res.status(404).end();
-        }
+          }   
+        // } else {
+        //     res.status(404).end();
+        // }
     } catch {
+        console.log("Err",err)
         res.status(400).end();
     }
 });
